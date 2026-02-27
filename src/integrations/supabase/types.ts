@@ -14,7 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          activity_date: string
+          activity_type: string
+          category: string
+          co2_kg: number
+          confidence: string
+          confidence_reason: string | null
+          created_at: string
+          description: string | null
+          distance_km: number | null
+          duration_min: number | null
+          id: string
+          is_confirmed: boolean | null
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string
+          activity_type: string
+          category: string
+          co2_kg?: number
+          confidence?: string
+          confidence_reason?: string | null
+          created_at?: string
+          description?: string | null
+          distance_km?: number | null
+          duration_min?: number | null
+          id?: string
+          is_confirmed?: boolean | null
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          activity_type?: string
+          category?: string
+          co2_kg?: number
+          confidence?: string
+          confidence_reason?: string | null
+          created_at?: string
+          description?: string | null
+          distance_km?: number | null
+          duration_min?: number | null
+          id?: string
+          is_confirmed?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      advisor_feedback: {
+        Row: {
+          created_at: string
+          feedback: string
+          id: string
+          suggestion_category: string
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback: string
+          id?: string
+          suggestion_category: string
+          suggestion_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback?: string
+          id?: string
+          suggestion_category?: string
+          suggestion_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          baseline_co2_kg: number | null
+          created_at: string
+          daily_goal_kg: number | null
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          baseline_co2_kg?: number | null
+          created_at?: string
+          daily_goal_kg?: number | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          baseline_co2_kg?: number | null
+          created_at?: string
+          daily_goal_kg?: number | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

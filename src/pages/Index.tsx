@@ -10,7 +10,7 @@ import heroBg from "@/assets/hero-bg.jpg";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       {/* Hero section with background */}
       <div className="relative overflow-hidden">
         <div
