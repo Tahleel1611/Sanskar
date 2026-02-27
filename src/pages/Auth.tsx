@@ -35,8 +35,9 @@ const Auth = () => {
         if (error) throw error;
         navigate("/");
       }
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -45,7 +46,12 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="px-5 py-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted transition-colors">
+        <button
+          type="button"
+          aria-label="Go back"
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-lg hover:bg-muted transition-colors"
+        >
           <ArrowLeft className="h-5 w-5 text-muted-foreground" />
         </button>
       </div>
@@ -107,7 +113,11 @@ const Auth = () => {
 
           <p className="text-center text-sm text-muted-foreground">
             {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button onClick={() => setIsSignUp(!isSignUp)} className="text-primary font-medium hover:underline">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-primary font-medium hover:underline"
+            >
               {isSignUp ? "Sign in" : "Sign up"}
             </button>
           </p>

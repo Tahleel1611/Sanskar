@@ -16,7 +16,7 @@ const QuickStats = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 + 0.1 * i, duration: 0.4 }}
-          className="rounded-xl bg-card p-3 shadow-card text-center"
+          className="rounded-xl bg-card/90 border border-border p-3 shadow-card text-center"
         >
           <stat.icon className="h-4 w-4 text-primary mx-auto mb-1.5" />
           <p className="text-base font-bold text-foreground">{stat.value}</p>

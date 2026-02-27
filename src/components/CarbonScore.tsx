@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 interface CarbonScoreProps {
   score: number; // 0-100, lower is better
@@ -8,7 +7,6 @@ interface CarbonScoreProps {
 }
 
 const CarbonScore = ({ score, totalKg, dailyGoal }: CarbonScoreProps) => {
-  const [animatedScore, setAnimatedScore] = useState(0);
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(totalKg / dailyGoal, 1.3);
@@ -21,15 +19,11 @@ const CarbonScore = ({ score, totalKg, dailyGoal }: CarbonScoreProps) => {
   };
 
   const getLabel = () => {
-    if (score <= 40) return "Excellent";
-    if (score <= 70) return "Good";
-    return "Needs Work";
+    if (score <= 30) return "Needs Work";
+    if (score <= 60) return "Good";
+    if (score <= 80) return "Great";
+    return "Excellent";
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimatedScore(score), 300);
-    return () => clearTimeout(timer);
-  }, [score]);
 
   return (
     <motion.div
@@ -82,7 +76,7 @@ const CarbonScore = ({ score, totalKg, dailyGoal }: CarbonScoreProps) => {
             color: getScoreColor(),
           }}
         >
-          {getLabel()} · Score {animatedScore}/100
+          {getLabel()} · Score {score}/100
         </span>
         <p className="text-xs text-muted-foreground mt-1">
           Goal: {dailyGoal} kg CO₂/day
