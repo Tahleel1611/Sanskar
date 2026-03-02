@@ -1,5 +1,6 @@
 import { Bell, HelpCircle, Leaf, LogOut, Menu, Settings, UserCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -10,7 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { getUserInitials } from "@/lib/userStorage";
+import { clearUserData, getUserInitials } from "@/lib/userStorage";
+import { supabase } from "@/integrations/supabase/client";
+import { ONBOARDING_DONE_KEY } from "@/lib/onboarding";
 
 interface HeaderProps {
   showSearch?: boolean;
@@ -22,11 +25,12 @@ interface HeaderProps {
 const menuLinks = [
   { label: "Dashboard", to: "/" },
   { label: "Choices", to: "/activity" },
+  { label: "What Went Wrong?", to: "/what-went-wrong" },
   { label: "Community", to: "/community" },
   { label: "Educate", to: "/learn" },
   { label: "Leaderboard", to: "/profile" },
-  { label: "Settings", to: "/profile" },
-  { label: "Help", to: "/questionnaire" },
+  { label: "Settings", to: "/settings" },
+  { label: "Help", to: "/help" },
 ];
 
 const notifications = [
@@ -35,8 +39,39 @@ const notifications = [
   "New mission unlocked: Product Scanner",
 ];
 
+const AI_FEED_PENDING_KEY = "eco_ai_feed_pending";
+
 const Header = ({ showSearch = false, searchValue = "", onSearchChange, showDesktopNav = false }: HeaderProps) => {
   const navigate = useNavigate();
+  const [pendingAiCount, setPendingAiCount] = useState(0);
+
+  useEffect(() => {
+    const updatePending = () => {
+      const raw = localStorage.getItem(AI_FEED_PENDING_KEY) || "0";
+      const parsed = Number.parseInt(raw, 10);
+      setPendingAiCount(Number.isNaN(parsed) ? 0 : parsed);
+    };
+
+    updatePending();
+    window.addEventListener("storage", updatePending);
+    window.addEventListener("eco-ai-feed-update", updatePending);
+    return () => {
+      window.removeEventListener("storage", updatePending);
+      window.removeEventListener("eco-ai-feed-update", updatePending);
+    };
+  }, []);
+
+  const unreadCount = notifications.length + pendingAiCount;
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      clearUserData();
+      localStorage.removeItem(ONBOARDING_DONE_KEY);
+      navigate("/", { replace: true });
+    }
+  };
 
   return (
     <motion.header
@@ -79,7 +114,11 @@ const Header = ({ showSearch = false, searchValue = "", onSearchChange, showDesk
               className="relative h-9 w-9 rounded-full hover:bg-muted transition-colors flex items-center justify-center"
             >
               <Bell className="h-4.5 w-4.5 text-muted-foreground" />
-              <span aria-hidden="true" className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary" />
+              {unreadCount > 0 && (
+                <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground px-1 inline-flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72 bg-card border-border z-[60]">
@@ -105,10 +144,10 @@ const Header = ({ showSearch = false, searchValue = "", onSearchChange, showDesk
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               <UserCircle className="h-4 w-4 mr-2" /> View Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/profile")}>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
               <Settings className="h-4 w-4 mr-2" /> Settings
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/auth")}>
+            <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" /> Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -132,7 +171,7 @@ const Header = ({ showSearch = false, searchValue = "", onSearchChange, showDesk
                   {item.label}
                 </Link>
               ))}
-              <button type="button" onClick={() => navigate("/questionnaire")} className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted inline-flex items-center justify-center gap-2">
+              <button type="button" onClick={() => navigate("/help")} className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted inline-flex items-center justify-center gap-2">
                 <HelpCircle className="h-4 w-4" /> Help Center
               </button>
             </div>

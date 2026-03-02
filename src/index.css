@@ -143,4 +143,27 @@
     background-color: hsl(var(--muted-foreground) / 0.35);
     border-radius: 20px;
   }
+
+  @keyframes bubble-float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .bubble-float {
+    animation: bubble-float 4.8s ease-in-out infinite;
+    transform-box: fill-box;
+  }
+
+  .bubble-float-1 {
+    animation-delay: 0s;
+  }
+
+  .bubble-float-2 {
+    animation-delay: 0.45s;
+  }
+
+  .bubble-float-3 {
+    animation-delay: 0.9s;
+  }
 }

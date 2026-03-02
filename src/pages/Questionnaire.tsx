@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, CircleHelp, ChevronLeft } from "lucide-react";
-import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +16,7 @@ const Questionnaire = () => {
   const [completionTip, setCompletionTip] = useState("");
   const [userName, setUserName] = useState("");
   const [showNameModal, setShowNameModal] = useState(true);
+  const [showAnswerError, setShowAnswerError] = useState(false);
 
   const handleNameInput = () => {
     if (!userName.trim()) {
@@ -42,11 +42,16 @@ const Questionnaire = () => {
   const current = expandedQuestions[step];
 
   const selectAnswer = (value: string) => {
+    setShowAnswerError(false);
     setAnswers((prev) => ({ ...prev, [current.id]: value }));
   };
 
   const handleNext = () => {
-    if (!answers[current.id]) return;
+    if (!answers[current.id]) {
+      setShowAnswerError(true);
+      toast({ title: "Answer required", description: "Please select an answer to continue." });
+      return;
+    }
 
     if (step === expandedQuestions.length - 1) {
       // Save preferences
@@ -72,7 +77,6 @@ const Questionnaire = () => {
   if (showNameModal) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Header />
         <div className="px-5 w-full max-w-md">
           <div className="rounded-xl bg-card shadow-card p-6 space-y-4">
             <h2 className="text-2xl font-bold text-foreground">Welcome to Sanskar! 🌱</h2>
@@ -98,7 +102,6 @@ const Questionnaire = () => {
   if (showCompletion) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center pb-24">
-        <Header />
         <div className="px-5 w-full max-w-md">
           <div className="rounded-xl bg-card shadow-card p-6 space-y-4 text-center">
             <div className="text-6xl">🎉</div>
@@ -115,8 +118,7 @@ const Questionnaire = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <Header />
+    <div className="min-h-screen bg-background pb-8">
       <div className="px-5 space-y-4 lg:max-w-2xl lg:mx-auto">
         <div>
           <h1 className="text-xl font-bold text-foreground">Personalization Quiz</h1>
@@ -163,6 +165,10 @@ const Questionnaire = () => {
             })}
           </div>
 
+          {showAnswerError && (
+            <p className="text-xs text-destructive">Please select an answer to continue.</p>
+          )}
+
           <div className="flex gap-2 pt-2">
             <Button
               variant="outline"
@@ -173,9 +179,8 @@ const Questionnaire = () => {
               <ChevronLeft className="mr-1 h-4 w-4" /> Back
             </Button>
             <Button
-              className="flex-1 h-10"
+              className={`flex-1 h-10 ${!answers[current.id] ? "opacity-60" : ""}`}
               onClick={handleNext}
-              disabled={!answers[current.id]}
             >
               {step === expandedQuestions.length - 1 ? "Finish" : "Next"}
               <ArrowRight className="ml-2 h-4 w-4" />

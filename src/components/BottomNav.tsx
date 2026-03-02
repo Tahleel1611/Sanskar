@@ -1,8 +1,10 @@
-import { Home, MapPin, Users, BookOpen, User } from "lucide-react";
+import { Home, MapPin, Users, BookOpen, User, ScanSearch, Camera } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const tabs = [
   { to: "/activity", icon: MapPin, label: "Choices" },
+  { to: "/carbon-lens", icon: ScanSearch, label: "Lens" },
+  { to: "/carbon-lens/scanner", icon: Camera, label: "Scanner" },
   { to: "/community", icon: Users, label: "Community" },
   { to: "/", icon: Home, label: "Dashboard" },
   { to: "/learn", icon: BookOpen, label: "Educate" },

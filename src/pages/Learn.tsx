@@ -24,14 +24,6 @@ import heroBg from "@/assets/hero-bg.jpg";
 
 const missions = [
   {
-    id: "scanner",
-    title: "Product Scanner",
-    desc: "Scan items in your kitchen to reveal their carbon footprint and find eco-friendly alternatives!",
-    level: "Level 3",
-    progress: "60% Complete",
-    progressWidth: "60%",
-  },
-  {
     id: "nature",
     title: "Nature Interaction",
     desc: "Go outside and find the hidden nature secrets glowing in your backyard.",
@@ -179,6 +171,11 @@ const Learn = () => {
                         title: badge.name,
                         description: `To unlock: ${badge.requirement}`,
                       });
+                    } else {
+                      toast({
+                        title: badge.name,
+                        description: badge.description,
+                      });
                     }
                   }}
                 >
@@ -217,14 +214,14 @@ const Learn = () => {
             <DialogTitle>AR Tutorial Video</DialogTitle>
             <DialogDescription>Learn how to use the Product Scanner</DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
-            <div className="text-center">
-              <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
-                <Play className="h-8 w-8 text-primary fill-current" />
-              </div>
-              <p className="text-sm text-muted-foreground">Educational video: How to scan products</p>
-              <p className="text-xs text-muted-foreground mt-2">(YouTube embed in production)</p>
-            </div>
+          <div className="rounded-xl overflow-hidden bg-black aspect-video">
+            <iframe
+              className="h-[300px] w-full"
+              src="https://www.youtube.com/embed/2dERIze1bVo"
+              title="AR Product Scanner Tutorial"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
           </div>
         </DialogContent>
       </Dialog>

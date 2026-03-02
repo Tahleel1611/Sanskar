@@ -15,7 +15,12 @@ import AlternativeChooser from "./pages/AlternativeChooser";
 import BottomNav from "./components/BottomNav";
 import { supabase } from "./integrations/supabase/client";
 import Questionnaire from "./pages/Questionnaire";
+import WhatWentWrongToday from "./pages/WhatWentWrongToday";
 import { ONBOARDING_DONE_KEY } from "./lib/onboarding";
+import Settings from "./pages/Settings";
+import Help from "./pages/Help";
+import CarbonLens from "./pages/CarbonLens";
+import CarbonScanner from "./pages/CarbonScanner";
 
 const queryClient = new QueryClient();
 const AUTH_BYPASS = true;
@@ -86,16 +91,21 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/auth" element={AUTH_BYPASS || session ? <Navigate to="/" replace /> : <Auth />} />
+            <Route path="/questionnaire" element={<Questionnaire />} />
             <Route element={<ProtectedLayout isLoading={isLoading} session={session} />}>
               <Route path="/" element={<Index />} />
               <Route path="/activity" element={<Activity />} />
               <Route path="/community" element={<Community />} />
               <Route path="/learn" element={<Learn />} />
               <Route path="/alternatives" element={<AlternativeChooser />} />
-              <Route path="/questionnaire" element={<Questionnaire />} />
+              <Route path="/what-went-wrong" element={<WhatWentWrongToday />} />
+              <Route path="/carbon-lens" element={<CarbonLens />} />
+              <Route path="/carbon-lens/scanner" element={<CarbonScanner />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/help" element={<Help />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Route>

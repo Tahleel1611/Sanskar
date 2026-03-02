@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Car, Train, Bike, Footprints, Check, X, ChevronLeft, ChevronRight, Utensils, Bolt, ShoppingBag } from "lucide-react";
 import Header from "@/components/Header";
@@ -13,6 +13,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { getCarbonAnalysisHistory, getLatestCarbonAnalysis } from "@/lib/carbon/storage";
+import type { CarbonActivity } from "@/lib/carbon/inference";
+import { useNavigate } from "react-router-dom";
 
 type Category = "transport" | "food" | "energy" | "goods";
 
@@ -31,6 +34,7 @@ interface ActivityEntry {
   confidenceReason: string;
   time: string;
   confirmed: boolean;
+  sourceTag?: string;
 }
 
 const modeIcons: Record<string, typeof Car> = { car: Car, train: Train, bike: Bike, walk: Footprints };
@@ -127,8 +131,43 @@ const initialEntriesByDay: Record<number, ActivityEntry[]> = {
 
 const categoryTabs: Category[] = ["transport", "food", "energy", "goods"];
 
+const categoryLabelMap: Record<Category, string> = {
+  transport: "transport",
+  food: "food",
+  energy: "energy",
+  goods: "goods",
+};
+
+const modeFromFactor = (factorKey: string) => {
+  if (factorKey.includes("train") || factorKey.includes("metro") || factorKey.includes("bus")) return "train";
+  if (factorKey.includes("bike") || factorKey.includes("motorbike") || factorKey.includes("scooter")) return "bike";
+  if (factorKey.includes("walk")) return "walk";
+  return "car";
+};
+
+const analysisToEntry = (item: CarbonActivity, createdAt: string, index: number): ActivityEntry => {
+  const category = item.category;
+  return {
+    id: `ml-${createdAt}-${item.factorKey}-${index}`,
+    category,
+    mode: category === "transport" ? modeFromFactor(item.factorKey) : undefined,
+    icon: categoryIcons[category],
+    label: item.label,
+    distance: item.unit.includes("km") ? item.quantity : undefined,
+    amount: item.unit.includes("km") ? undefined : item.quantity,
+    co2: parseFloat(item.co2Kg.toFixed(2)),
+    confidence: item.confidence,
+    confidenceReason: item.confidenceReason,
+    time: new Date(createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    confirmed: item.confidence === "high",
+    sourceTag: "Carbon Lens",
+  };
+};
+
 const Activity = () => {
   const [entriesByDay, setEntriesByDay] = useState<Record<number, ActivityEntry[]>>(initialEntriesByDay);
+  const [modelEntries, setModelEntries] = useState<ActivityEntry[]>([]);
+  const [runDelta, setRunDelta] = useState<number | null>(null);
   const [dayOffset, setDayOffset] = useState(0);
   const [activeCategory, setActiveCategory] = useState<Category>("transport");
   const [explainEntry, setExplainEntry] = useState<ActivityEntry | null>(null);
@@ -140,8 +179,35 @@ const Activity = () => {
   const [manualDescription, setManualDescription] = useState("");
   const [manualAmount, setManualAmount] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const currentEntries = entriesByDay[dayOffset] ?? [];
+  useEffect(() => {
+    const syncFromAnalysis = () => {
+      const latest = getLatestCarbonAnalysis();
+      const history = getCarbonAnalysisHistory();
+
+      if (history.length >= 2) {
+        setRunDelta(parseFloat((history[0].totalKgCo2e - history[1].totalKgCo2e).toFixed(2)));
+      } else {
+        setRunDelta(null);
+      }
+
+      if (!latest || latest.activities.length === 0) {
+        setModelEntries([]);
+        return;
+      }
+
+      setModelEntries(latest.activities.map((item, index) => analysisToEntry(item, latest.createdAt, index)));
+    };
+
+    syncFromAnalysis();
+    window.addEventListener("eco-carbon-analysis-update", syncFromAnalysis);
+    return () => {
+      window.removeEventListener("eco-carbon-analysis-update", syncFromAnalysis);
+    };
+  }, []);
+
+  const currentEntries = dayOffset === 0 ? [...modelEntries, ...(entriesByDay[dayOffset] ?? [])] : (entriesByDay[dayOffset] ?? []);
   const filteredEntries = currentEntries.filter((item) => item.category === activeCategory);
 
   const todayCo2 = currentEntries.reduce((sum, item) => sum + item.co2, 0);
@@ -249,6 +315,13 @@ const Activity = () => {
         <div>
           <h1 className="text-xl font-bold text-foreground">Good Choices</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Track daily actions and confirm your mobility footprint</p>
+          <button
+            type="button"
+            onClick={() => navigate("/carbon-lens")}
+            className="mt-2 rounded-full bg-muted px-3 py-1.5 text-[11px] font-semibold text-foreground"
+          >
+            Open Carbon Lens
+          </button>
         </div>
 
         <div className="rounded-xl bg-primary/10 border border-primary/20 p-4">
@@ -257,6 +330,11 @@ const Activity = () => {
           <p className="text-muted-foreground text-xs mt-1">
             {currentEntries.length} choices · {pendingCount} pending confirmation
           </p>
+          {runDelta !== null && (
+            <p className={`text-xs mt-2 ${runDelta <= 0 ? "text-primary" : "text-foreground"}`}>
+              Carbon Lens vs previous run: {runDelta > 0 ? `+${runDelta}` : runDelta} kg
+            </p>
+          )}
         </div>
 
         <div className="rounded-xl bg-card border border-border p-2 flex items-center justify-between">
@@ -332,10 +410,18 @@ const Activity = () => {
           <div className="grid sm:grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => setShowTripForm(true)}
+              onClick={() => {
+                if (activeCategory === "transport") {
+                  setShowTripForm(true);
+                  return;
+                }
+
+                setManualCategory(activeCategory);
+                setShowManualForm(true);
+              }}
               className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-3 text-sm font-medium text-muted-foreground hover:border-primary/30 hover:text-primary transition-colors"
             >
-              <Plus className="h-4 w-4" /> Log transport
+              <Plus className="h-4 w-4" /> Log {categoryLabelMap[activeCategory]}
             </button>
             <button
               type="button"
@@ -373,6 +459,9 @@ const Activity = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-foreground">{entry.label}</span>
+                        {entry.sourceTag && (
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">{entry.sourceTag}</span>
+                        )}
                         <ConfidenceBadge
                           level={entry.confidence}
                           reason={entry.confidenceReason}
