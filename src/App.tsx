@@ -23,7 +23,7 @@ import CarbonLens from "./pages/CarbonLens";
 import CarbonScanner from "./pages/CarbonScanner";
 
 const queryClient = new QueryClient();
-const AUTH_BYPASS = true;
+const AUTH_BYPASS = false;
 
 interface ProtectedLayoutProps {
   isLoading: boolean;
