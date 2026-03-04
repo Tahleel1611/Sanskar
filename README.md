@@ -2,7 +2,7 @@
 
 > A carbon footprint tracker and sustainability companion app built with React, TypeScript, and Supabase.
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript) ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite) ![Supabase](https://img.shields.io/badge/Supabase-green?logo=supabase) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?logo=tailwindcss)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev) [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org) [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite)](https://vitejs.dev) [![Supabase](https://img.shields.io/badge/Supabase-green?logo=supabase)](https://supabase.com) [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
 
 ## Overview
 
@@ -10,14 +10,18 @@ Eco Companion helps users track transport-related carbon emissions, learn eco-fr
 
 ## Features
 
-- **Dashboard** — real-time carbon score and weekly chart
-- **Activity Tracking** — log transport and daily activities
-- **Carbon Lens / Scanner** — scan items to estimate carbon footprint (ML-powered)
-- **Learn** — bite-sized eco education missions
-- **Community** — leaderboard and shared sustainability goals
-- **Alternative Chooser** — discover lower-carbon alternatives
-- **AI Advisor** — personalized eco suggestions
-- **Profile & Settings** — user preferences and onboarding questionnaire
+> Legend: ✅ Done &nbsp;|&nbsp; 🧪 In progress &nbsp;|&nbsp; 📝 Planned
+
+| Status | Feature | Description | Where in the UI |
+|--------|---------|-------------|------------------|
+| ✅ | **Dashboard** | Real-time carbon score and weekly chart | `/` home screen |
+| ✅ | **Activity Tracking** | Log transport and daily activities | Dashboard → Add Activity |
+| ✅ | **Carbon Lens / Scanner** | Scan items to estimate carbon footprint (ML-powered) | Scanner tab |
+| ✅ | **Learn** | Bite-sized eco education missions | Learn tab |
+| ✅ | **Community** | Leaderboard and shared sustainability goals | Community tab |
+| ✅ | **Alternative Chooser** | Discover lower-carbon alternatives for daily choices | Dashboard → Alternatives |
+| 🧪 | **AI Advisor** | Personalized eco suggestions (runs client-side, no external API) | Advisor tab |
+| ✅ | **Profile & Settings** | User preferences and onboarding questionnaire | Profile tab |
 
 ## Tech Stack
 
@@ -33,23 +37,24 @@ Eco Companion helps users track transport-related carbon emissions, learn eco-fr
 ## Project Structure
 
 ```
-src/
-  components/   # Reusable UI components
-  pages/        # Route-level page components
-  hooks/        # Custom React hooks
-  integrations/ # Supabase client setup
-  lib/          # Utilities (onboarding, etc.)
-  assets/       # Static assets
-ml/             # Python ML model for Carbon Lens
-supabase/       # Supabase migrations and config
-public/         # Static public files
+Sanskar/
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── pages/           # Route-level page components
+│   ├── hooks/           # Custom React hooks
+│   ├── integrations/    # Supabase client setup
+│   ├── lib/             # Utilities (onboarding, etc.)
+│   └── assets/          # Static assets
+├── ml/                  # Python ML model for Carbon Lens
+├── supabase/            # Supabase migrations and config
+└── public/              # Static public files
 ```
 
 ## Prerequisites
 
 - Node.js 20+
 - npm
-- A [Supabase](https://supabase.com) project
+- A [Supabase](https://supabase.com/) project
 
 ## Local Setup
 
@@ -95,6 +100,7 @@ public/         # Static public files
 The `ml/` folder contains a Python script (`build_model.py`) and a pre-trained model (`carbon_model.json`) used by the Carbon Lens scanner to estimate the carbon footprint of scanned items.
 
 To retrain the model:
+
 ```bash
 cd ml
 python build_model.py
