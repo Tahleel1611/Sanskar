@@ -8,6 +8,12 @@
 
 Eco Companion helps users track transport-related carbon emissions, learn eco-friendly habits through missions, scan products with the Carbon Lens feature, and participate in community sustainability challenges.
 
+## Live Deployment
+
+The app is now hosted for public use at:
+
+https://sanskar-gamma.vercel.app/questionnaire
+
 ## Features
 
 > Legend: ✅ Done &nbsp;|&nbsp; 🧪 In progress &nbsp;|&nbsp; 📝 Planned
